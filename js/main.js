@@ -22,9 +22,9 @@ class UI {
     const divNot = document.createElement('div');
     divNot.classList.add('flexC')
     divNot.innerHTML = `
-    <div class="singleNote">
-      <div class="card ">
-        <div class="card-body">
+    <div class="singleNote" >
+      <div class="card " id=${note.id}>
+        <div class="card-body" >
             <h2 class="text-center card-title">${note.title}</h2>
             <p class="card-text">
               ${note.note_des}
@@ -70,10 +70,10 @@ class NOTEDB {
   removeFromDb(note) {
   
     let notes = this.getFromLocalStorage();
-    // return console.log(notes)
+    
     notes.forEach((noteLS, index) => {
-      if (note.title == noteLS.title.trim()) {
-        // return console.log(true)
+      if (note.id == noteLS.id.trim()) {
+        
         notes.splice(index, 1);
       }
     });
@@ -84,14 +84,66 @@ class NOTEDB {
     return window.location.reload()
   }
 
+  editDataDb(note) {
+    
+    let notes = this.getFromLocalStorage();
+    
+    notes.forEach((noteLS, index) => {
+      if (note.id == noteLS.id.trim()) {
+        
+        notes.splice(index, 1, note);
+      }
+    });
+
+    //set the remaining values to lS
+    localStorage.setItem('notes', JSON.stringify(notes))
+
+    return window.location.reload()
+  } 
+
+
 
 }
+
+//generate unique id
+class GenerateID {
+  constructor() {
+    this.length = 8;
+    this.timestamp = +new Date;
+  }
+
+  _getRandomInt(min, max) {
+    return Math.floor(Math.random() * ( max - min + 1)) + min
+  }
+
+  generateUniqueID() {
+    let ts = this.timestamp.toString();
+    
+    let parts = ts.split("").reverse();
+    let id = 'a';
+
+    for (let i = 0; i < 8; i++) {
+      const max = parts.length - 1
+      
+      const index = this._getRandomInt(0, max);
+      id += parts[index];
+    }
+
+    return id;
+  }
+}
+
+
 //global variables
 const title = document.querySelector('#title');
 const desc = document.querySelector('#noteBody');
+const editBtnCheck = document.querySelector('.add-body');
 
+//instantiate the classes
 const ui = new UI();
 const notesDB = new NOTEDB();
+const generateId = new GenerateID();
+
 //eventListeners
 eventListeners();
 
@@ -108,7 +160,7 @@ function eventListeners() {
 
   //default loading
   document.addEventListener('DOMContentLoaded', loader);
-  // return console.log(noteAdd)
+  
   //'delete a note
   noteAdd.addEventListener('click', readBtn )
 
@@ -125,23 +177,37 @@ function addNOtes(e) {
     ui.printMessage('Please All Filleds Must Be Completed Before the Note Can Be Submitted', 'alert-danger');
   } else {
 
-    //collect information
-    const notes = {
-      title: noteTitle,
-      note_des: noteDesc
+    let idEdit = editBtnCheck.getAttribute('id');
+    if (idEdit) {
+      const updatedNote = {
+        id: idEdit,
+        title: noteTitle,
+        note_des: noteDesc
+      }
+
+      //display updated information
+      ui.displayNotes(updatedNote);
+
+      //save note to DB
+      notesDB.editDataDb(updatedNote);
+
+    } else {
+      //collect information
+      const notes = {
+        id: generateId.generateUniqueID(),
+        title: noteTitle,
+        note_des: noteDesc
+      }
+
+      //display notes to the UI
+      ui.displayNotes(notes);
+
+      // save to db
+      notesDB.saveToDb(notes);
+
+      //reset form
+      resetFunc();
     }
-
-    //UI display
-    const spinner = document.querySelector('.spinner img');
-    // return console.log(spinner)
-    spinner.style.display = 'block';
-    ui.displayNotes(notes);
-
-    // save to db
-    notesDB.saveToDb(notes);
-  
-    //reset form
-    resetFunc();
   }
 }
 
@@ -160,10 +226,10 @@ function loader() {
     const divNot = document.createElement('div');
     divNot.classList.add('flexC')
     divNot.innerHTML = `
-    <div class="singleNote">
-      <div class="card ">
-        <div class="card-body">
-            <h2 class="text-center card-title">${note.title}</h2>
+    <div class="singleNote" >
+      <div class="card" id=${note.id}>
+        <div class="card-body" >
+            <h2 class="text-center card-title" >${note.title}</h2>
             <p class="card-text">
               ${note.note_des}
             </p>
@@ -180,18 +246,21 @@ function loader() {
   });
 }
 
-function readBtn(e) {
-  // return console.log(e.target)
+async function readBtn(e) {
+
   if (e.target.classList.contains('deleteNote')) {
-    // return console.log(true)
+
+    //remove the card from display
     e.target.parentElement.parentElement.parentElement.parentElement.remove();
 
     //get details
-    const card = e.target.parentElement.parentElement;
+    const card = e.target.parentElement.parentElement.parentElement;
     const title = card.querySelector('h2').textContent.trim();
-    const desc = card.querySelector('p').textContent.trim()
+    const desc = card.querySelector('p').textContent.trim();
+    const id = card.getAttribute('id')
 
     const note = {
+      id: id,
       title: title,
       desc: desc
     }
@@ -199,7 +268,23 @@ function readBtn(e) {
     //delete from localStoirage
     notesDB.removeFromDb(note)
 
-  } else if (e.target.classList.contains('editNote')){
-    console.log('false Butlmakdma')
+  } else if (e.target.classList.contains('editNote')) {
+
+    //remove from display
+    e.target.parentElement.parentElement.parentElement.parentElement.remove();
+    
+    //get details
+    const card = e.target.parentElement.parentElement.parentElement;
+    const titleDiv = card.querySelector('h2').textContent.trim();
+    const descDiv = card.querySelector('p').textContent.trim();
+    const id = card.getAttribute('id');
+
+    //creating a condition for editing the information
+    editBtnCheck.id = id
+
+    //sending values to the form
+    title.value = titleDiv;
+    desc.value = descDiv;
+
   }
 }
