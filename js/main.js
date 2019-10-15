@@ -29,11 +29,10 @@ class UI {
             <p class="card-text">
               ${note.note_des}
             </p>
-
-              <span class="badge badge-warning badge-pill">
-              ${note.strCategory}
-              </span>
-
+            <div class="mianBtn">
+              <button class="btn btn-warning editNote" id="editNote">Edit</button>
+              <button class="btn btn-danger deleteNote" id="deleteNote">Delete</button>
+            </div>
         </div>
       </div>
     </div>
@@ -82,7 +81,8 @@ eventListeners();
 function eventListeners() {
   const addBtn = document.querySelector('#addBtn');
   const resetBtn = document.querySelector('#resetBtn');
-
+  const noteAdd = document.querySelector('#notes')
+  
   //add notes
   addBtn.addEventListener('click', addNOtes)
 
@@ -90,7 +90,10 @@ function eventListeners() {
   resetBtn.addEventListener('click', resetFunc);
 
   //default loading
-  document.addEventListener('DOMContentLoaded', loader )
+  document.addEventListener('DOMContentLoaded', loader);
+  // return console.log(noteAdd)
+  //'delete a note
+  noteAdd.addEventListener('click', readBtn )
 
 };
 
@@ -105,9 +108,6 @@ function addNOtes(e) {
     ui.printMessage('Please All Filleds Must Be Completed Before the Note Can Be Submitted', 'alert-danger');
   } else {
 
-    //print message
-    // ui.printMessage('Thank You, Your Note Have Been Addes', 'alert-success');
-
     //collect information
     const notes = {
       title: noteTitle,
@@ -118,24 +118,17 @@ function addNOtes(e) {
     const spinner = document.querySelector('.spinner img');
     // return console.log(spinner)
     spinner.style.display = 'block';
-
-    //perform the function after the following seconds
-    setTimeout(function () {
-      //remove loader
-      spinner.style.display = 'none';
-
-      ui.displayNotes(notes);
-    }, 3000);
+    ui.displayNotes(notes);
 
     // save to db
     notesDB.saveToDb(notes);
   
+    //reset form
+    resetFunc();
   }
 }
 
 function resetFunc() {
-  //   const noteTitle = title.value;
-  //   const noteDesc = desc.value;
 
   title.value = '';
   desc.value = '';
@@ -157,11 +150,10 @@ function loader() {
             <p class="card-text">
               ${note.note_des}
             </p>
-
-              <span class="badge badge-warning badge-pill">
-              ${note.strCategory}
-              </span>
-
+             <div class="mianBtn">
+              <button class="btn btn-warning editNote" id="editNote">Edit</button>
+              <button class="btn btn-danger deleteNote" id="deleteNote">Delete</button>
+            </div>
         </div>
       </div>
     </div>
@@ -169,4 +161,11 @@ function loader() {
 
     notsDiv.appendChild(divNot);  
   });
+}
+
+function readBtn(e) {
+  // return console.log(e.target)
+  if (e.target.classList.contains('.deleteNote')) {
+    console.log(e.target.parentElement)
+  }
 }
