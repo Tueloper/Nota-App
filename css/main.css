@@ -91,7 +91,7 @@ h3,
 
 
 .navbar {
-  background: var(--gray-dark);
+  background: var(--red);
   box-shadow: 3px 3px 3px rgb(238, 232, 232);
   color: var(--white);
   padding: 10px;
@@ -306,6 +306,7 @@ input::focus {
 .card-title {
   margin-bottom: 0.75rem;
   text-align: center;
+  color: var(--red);
 }
 .card-subtitle {
   margin-top: -0.375rem;

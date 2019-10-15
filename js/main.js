@@ -65,6 +65,23 @@ class NOTEDB {
 
     localStorage.setItem('notes', JSON.stringify(notes));
 
+  };
+
+  removeFromDb(note) {
+  
+    let notes = this.getFromLocalStorage();
+    // return console.log(notes)
+    notes.forEach((noteLS, index) => {
+      if (note.title == noteLS.title.trim()) {
+        // return console.log(true)
+        notes.splice(index, 1);
+      }
+    });
+
+    //set the remaining values to lS
+    localStorage.setItem('notes', JSON.stringify(notes))
+
+    return window.location.reload()
   }
 
 
@@ -165,7 +182,24 @@ function loader() {
 
 function readBtn(e) {
   // return console.log(e.target)
-  if (e.target.classList.contains('.deleteNote')) {
-    console.log(e.target.parentElement)
+  if (e.target.classList.contains('deleteNote')) {
+    // return console.log(true)
+    e.target.parentElement.parentElement.parentElement.parentElement.remove();
+
+    //get details
+    const card = e.target.parentElement.parentElement;
+    const title = card.querySelector('h2').textContent.trim();
+    const desc = card.querySelector('p').textContent.trim()
+
+    const note = {
+      title: title,
+      desc: desc
+    }
+
+    //delete from localStoirage
+    notesDB.removeFromDb(note)
+
+  } else if (e.target.classList.contains('editNote')){
+    console.log('false Butlmakdma')
   }
 }
