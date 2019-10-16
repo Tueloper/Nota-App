@@ -1,5 +1,7 @@
 class UI {
-
+  constructor() {
+    this.colors = ['#fc3939', '#13b955', '#efa31d', '#e83e8c', '#fd7e14', '#868e96', '#13b955', '#009cdc'];
+  }
 
   printMessage(message, className) {
 
@@ -17,13 +19,14 @@ class UI {
   }
 
   displayNotes(note) {
-
+    let colorB = this.colors[this.generateColors()];
     const notsDiv = document.querySelector('#notes');
     const divNot = document.createElement('div');
+    // divNot.style.backgroundColor = this.colors[this.generateColors()]
     divNot.classList.add('flexC')
     divNot.innerHTML = `
-    <div class="singleNote" >
-      <div class="card " id=${note.id}>
+    <div class="singleNote">
+      <div class="card " id="${note.id}" style="background-color: ${colorB}">
         <div class="card-body" >
             <h2 class="text-center card-title">${note.title}</h2>
             <p class="card-text">
@@ -40,6 +43,12 @@ class UI {
 
     notsDiv.appendChild(divNot);
   }
+
+  generateColors() {
+    return Math.floor( Math.random() * this.colors.length );
+  }
+
+
 }
 
 class NOTEDB {
@@ -185,9 +194,6 @@ function addNOtes(e) {
         note_des: noteDesc
       }
 
-      //display updated information
-      ui.displayNotes(updatedNote);
-
       //save note to DB
       notesDB.editDataDb(updatedNote);
 
@@ -223,11 +229,13 @@ function loader() {
   const notsDiv = document.querySelector('#notes');
 
   notesss.forEach(note => {
+    let colorB = ui.colors[ui.generateColors()];
+
     const divNot = document.createElement('div');
-    divNot.classList.add('flexC')
+    divNot.classList.add('flexC');
     divNot.innerHTML = `
-    <div class="singleNote" >
-      <div class="card" id=${note.id}>
+    <div class="singleNote"  >
+      <div class="card" id="${note.id}" style="background-color: ${colorB}">
         <div class="card-body" >
             <h2 class="text-center card-title" >${note.title}</h2>
             <p class="card-text">

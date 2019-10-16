@@ -91,7 +91,7 @@ h3,
 
 
 .navbar {
-  background: var(--red);
+  background: var(--gray-dark);
   box-shadow: 3px 3px 3px rgb(238, 232, 232);
   color: var(--white);
   padding: 10px;
@@ -132,7 +132,6 @@ h3,
 
 .add-title {
   margin: 5px;
-  /* line-height: 1.5; */
   font-size: 2em;
 }
 .add-body {
@@ -168,7 +167,6 @@ h3,
   border: 1px solid transparent;
   padding: 0.375rem 0.75rem;
   font-size: 0.875rem;
-  /* color: var(--red); */
   line-height: 1.5;
   cursor: pointer;
   border-radius: 0;
@@ -180,7 +178,6 @@ h3,
 .form-control::placeholder {
   color: #868e96;
   opacity: 1;
-  /* padding: 10px; */
   font-size: 0.8em;
   font-weight: 200;
 }
@@ -302,11 +299,11 @@ input::focus {
   -ms-flex: 1 1 auto;
   flex: 1 1 auto;
   padding: 1.25rem;
+  color: var(--white);
 }
 .card-title {
   margin-bottom: 0.75rem;
   text-align: center;
-  color: var(--red);
 }
 .card-subtitle {
   margin-top: -0.375rem;
