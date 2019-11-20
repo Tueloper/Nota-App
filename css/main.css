@@ -501,3 +501,14 @@ input::focus {
 #deleteNote {
   margin-left: 5px;
 }
+
+.footer {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: center;
+  align-items: center;
+  background: #17141f;
+  color: #f0f0f0;
+
+  height: 60px;
+}
