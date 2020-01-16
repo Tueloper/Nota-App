@@ -1,5 +1,7 @@
 class UI {
-
+  constructor() {
+    this.colors = ['#fc3939', '#13b955', '#efa31d', '#e83e8c', '#fd7e14', '#868e96', '#13b955', '#009cdc'];
+  }
 
   printMessage(message, className) {
 
@@ -17,14 +19,15 @@ class UI {
   }
 
   displayNotes(note) {
-
+    let colorB = this.colors[this.generateColors()];
     const notsDiv = document.querySelector('#notes');
     const divNot = document.createElement('div');
+    // divNot.style.backgroundColor = this.colors[this.generateColors()]
     divNot.classList.add('flexC')
     divNot.innerHTML = `
     <div class="singleNote">
-      <div class="card ">
-        <div class="card-body">
+      <div class="card " id="${note.id}" style="background-color: ${colorB}">
+        <div class="card-body" >
             <h2 class="text-center card-title">${note.title}</h2>
             <p class="card-text">
               ${note.note_des}
@@ -40,6 +43,12 @@ class UI {
 
     notsDiv.appendChild(divNot);
   }
+
+  generateColors() {
+    return Math.floor( Math.random() * this.colors.length );
+  }
+
+
 }
 
 class NOTEDB {
@@ -65,16 +74,85 @@ class NOTEDB {
 
     localStorage.setItem('notes', JSON.stringify(notes));
 
+  };
+
+  removeFromDb(note) {
+  
+    let notes = this.getFromLocalStorage();
+    
+    notes.forEach((noteLS, index) => {
+      if (note.id == noteLS.id.trim()) {
+        
+        notes.splice(index, 1);
+      }
+    });
+
+    //set the remaining values to lS
+    localStorage.setItem('notes', JSON.stringify(notes))
+
+    return window.location.reload()
   }
+
+  editDataDb(note) {
+    
+    let notes = this.getFromLocalStorage();
+    
+    notes.forEach((noteLS, index) => {
+      if (note.id == noteLS.id.trim()) {
+        
+        notes.splice(index, 1, note);
+      }
+    });
+
+    //set the remaining values to lS
+    localStorage.setItem('notes', JSON.stringify(notes))
+
+    return window.location.reload()
+  } 
+
 
 
 }
+
+//generate unique id
+class GenerateID {
+  constructor() {
+    this.length = 8;
+    this.timestamp = +new Date;
+  }
+
+  _getRandomInt(min, max) {
+    return Math.floor(Math.random() * ( max - min + 1)) + min
+  }
+
+  generateUniqueID() {
+    let ts = this.timestamp.toString();
+    
+    let parts = ts.split("").reverse();
+    let id = 'a';
+
+    for (let i = 0; i < 8; i++) {
+      const max = parts.length - 1
+      
+      const index = this._getRandomInt(0, max);
+      id += parts[index];
+    }
+
+    return id;
+  }
+}
+
+
 //global variables
 const title = document.querySelector('#title');
 const desc = document.querySelector('#noteBody');
+const editBtnCheck = document.querySelector('.add-body');
 
+//instantiate the classes
 const ui = new UI();
 const notesDB = new NOTEDB();
+const generateId = new GenerateID();
+
 //eventListeners
 eventListeners();
 
@@ -91,7 +169,7 @@ function eventListeners() {
 
   //default loading
   document.addEventListener('DOMContentLoaded', loader);
-  // return console.log(noteAdd)
+  
   //'delete a note
   noteAdd.addEventListener('click', readBtn )
 
@@ -108,23 +186,34 @@ function addNOtes(e) {
     ui.printMessage('Please All Filleds Must Be Completed Before the Note Can Be Submitted', 'alert-danger');
   } else {
 
-    //collect information
-    const notes = {
-      title: noteTitle,
-      note_des: noteDesc
+    let idEdit = editBtnCheck.getAttribute('id');
+    if (idEdit) {
+      const updatedNote = {
+        id: idEdit,
+        title: noteTitle,
+        note_des: noteDesc
+      }
+
+      //save note to DB
+      notesDB.editDataDb(updatedNote);
+
+    } else {
+      //collect information
+      const notes = {
+        id: generateId.generateUniqueID(),
+        title: noteTitle,
+        note_des: noteDesc
+      }
+
+      //display notes to the UI
+      ui.displayNotes(notes);
+
+      // save to db
+      notesDB.saveToDb(notes);
+
+      //reset form
+      resetFunc();
     }
-
-    //UI display
-    const spinner = document.querySelector('.spinner img');
-    // return console.log(spinner)
-    spinner.style.display = 'block';
-    ui.displayNotes(notes);
-
-    // save to db
-    notesDB.saveToDb(notes);
-  
-    //reset form
-    resetFunc();
   }
 }
 
@@ -140,13 +229,15 @@ function loader() {
   const notsDiv = document.querySelector('#notes');
 
   notesss.forEach(note => {
+    let colorB = ui.colors[ui.generateColors()];
+
     const divNot = document.createElement('div');
-    divNot.classList.add('flexC')
+    divNot.classList.add('flexC');
     divNot.innerHTML = `
-    <div class="singleNote">
-      <div class="card ">
-        <div class="card-body">
-            <h2 class="text-center card-title">${note.title}</h2>
+    <div class="singleNote"  >
+      <div class="card" id="${note.id}" style="background-color: ${colorB}">
+        <div class="card-body" >
+            <h2 class="text-center card-title" >${note.title}</h2>
             <p class="card-text">
               ${note.note_des}
             </p>
@@ -163,9 +254,45 @@ function loader() {
   });
 }
 
-function readBtn(e) {
-  // return console.log(e.target)
-  if (e.target.classList.contains('.deleteNote')) {
-    console.log(e.target.parentElement)
+async function readBtn(e) {
+
+  if (e.target.classList.contains('deleteNote')) {
+
+    //remove the card from display
+    e.target.parentElement.parentElement.parentElement.parentElement.remove();
+
+    //get details
+    const card = e.target.parentElement.parentElement.parentElement;
+    const title = card.querySelector('h2').textContent.trim();
+    const desc = card.querySelector('p').textContent.trim();
+    const id = card.getAttribute('id')
+
+    const note = {
+      id: id,
+      title: title,
+      desc: desc
+    }
+
+    //delete from localStoirage
+    notesDB.removeFromDb(note)
+
+  } else if (e.target.classList.contains('editNote')) {
+
+    //remove from display
+    e.target.parentElement.parentElement.parentElement.parentElement.remove();
+    
+    //get details
+    const card = e.target.parentElement.parentElement.parentElement;
+    const titleDiv = card.querySelector('h2').textContent.trim();
+    const descDiv = card.querySelector('p').textContent.trim();
+    const id = card.getAttribute('id');
+
+    //creating a condition for editing the information
+    editBtnCheck.id = id
+
+    //sending values to the form
+    title.value = titleDiv;
+    desc.value = descDiv;
+
   }
 }

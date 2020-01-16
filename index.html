@@ -6,15 +6,16 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Note App</title>
   <link rel="stylesheet" href="css/main.css">
+  <link rel="shortcut icon" href="https://img.icons8.com/color/48/000000/note.png" type="image/x-icon">
+  <script src="./js/jquery-3.3.1.min.js"></script>
 </head>
 <body>
-  <div class="navbar">
-    <h2>Note App</h2>
-  </div>
+ 
+  <div id="header"></div>
 
   <div class="semantics">
 
-    <div class="displayN" id="displayN">
+    <div class="displayN" id="displayN" >
       <div class="add-content" role="document">
         <div class="add-header">
           <h4 class="add-title">Add Notes</h4>
@@ -32,7 +33,7 @@
             <input type="text" class="form-control"  id="noteBody" required="required" placeholder="E.g: This is The Description Of Title">
           </div>
       
-          <div class=" add-footer">
+          <div class="add-footer">
             <button type="button" class="btn btn-danger" id="resetBtn" data-dismiss="add">Reset</button>
             <button type="submit" class="btn btn-success" id="addBtn">Save</button>
           </div>
@@ -48,7 +49,12 @@
         
       </div>
     </div>
+  </div>
 
+ <div id="footer"></div>
+  
+
+ <script src="template.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>
